@@ -1,0 +1,26 @@
+# Copy this into a client repo as .github/workflows/weekly-report.yml
+# Point `path` at that repo's report file. This demo does not ship secrets.
+name: weekly-report
+
+on:
+  pull_request:
+    paths:
+      - "reports/**"
+  push:
+    branches: [main]
+    paths:
+      - "reports/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install pyyaml
+      - name: Validate weekly report
+        # Drop validate_report.py into the client repo (or vendor this folder).
+        run: python validate_report.py reports/this-week.json
