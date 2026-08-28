@@ -1,0 +1,17 @@
+{
+  "week": "2026-W34",
+  "author": "zc",
+  "team": "automation",
+  "items": [
+    {
+      "title": "客户 A 仓库接入周报校验",
+      "status": "done",
+      "hours": 6
+    },
+    {
+      "title": "Workspace 周报脚本草稿",
+      "status": "wip",
+      "hours": 3
+    }
+  ]
+}
