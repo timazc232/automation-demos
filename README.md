@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 # automation-demos
 
 接 GitHub Actions 周报校验、Google Workspace（Sheets → 邮件摘要）这类小自动化。电鸭 / V2EX / Upwork 可询。
