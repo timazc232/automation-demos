@@ -1,0 +1,70 @@
+/**
+ * Example port of weekly_digest.py to Apps Script (Sheets + Gmail).
+ *
+ * NOT executed in CI. Tests stay on the Python digest and a CSV fixture.
+ * Copy into a clasp project after the client grants Workspace access
+ * (often needs a Workspace admin for domain-wide use).
+ *
+ * Scopes: see appsscript.json
+ *   - spreadsheets.readonly
+ *   - gmail.send
+ */
+
+function sendWeeklyDigest() {
+  var sheetName = "tasks"; // columns: date, owner, task, status, due
+  var recipient = Session.getActiveUser().getEmail();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error("missing sheet: " + sheetName);
+  }
+
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) {
+    GmailApp.sendEmail(recipient, "本周未完成", "（没有未完成任务）");
+    return;
+  }
+
+  var header = values[0].map(function (h) {
+    return String(h).trim().toLowerCase();
+  });
+  var idx = {
+    owner: header.indexOf("owner"),
+    task: header.indexOf("task"),
+    status: header.indexOf("status"),
+    due: header.indexOf("due"),
+  };
+
+  var openStatuses = { open: true, wip: true, blocked: true };
+  var grouped = {};
+  for (var r = 1; r < values.length; r++) {
+    var row = values[r];
+    var status = String(row[idx.status] || "").trim().toLowerCase();
+    if (!openStatuses[status]) continue;
+    var owner = String(row[idx.owner] || "").trim() || "(unassigned)";
+    if (!grouped[owner]) grouped[owner] = [];
+    grouped[owner].push({
+      task: String(row[idx.task] || "").trim(),
+      status: status,
+      due: String(row[idx.due] || "").trim(),
+    });
+  }
+
+  var body = renderText_(grouped);
+  GmailApp.sendEmail(recipient, "本周未完成", body);
+}
+
+function renderText_(grouped) {
+  var owners = Object.keys(grouped).sort();
+  if (!owners.length) return "本周未完成\n\n（没有未完成任务）\n";
+  var lines = ["本周未完成", ""];
+  owners.forEach(function (owner) {
+    lines.push(owner + ":");
+    grouped[owner].forEach(function (t) {
+      var due = t.due ? ", due " + t.due : "";
+      lines.push("  - [" + t.status + "] " + t.task + due);
+    });
+    lines.push("");
+  });
+  return lines.join("\n");
+}
