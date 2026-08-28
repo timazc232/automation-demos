@@ -1,0 +1,9 @@
+week: "2026-W34"
+author: zc
+items:
+  - title: 写校验器
+    status: done
+    hours: 4
+  - title: 补测试
+    status: planned
+    hours: 1
